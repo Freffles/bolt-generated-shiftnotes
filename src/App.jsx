@@ -1,82 +1,85 @@
 import React, { useState, useEffect } from 'react'
+import { PlusIcon } from 'lucide-react'
 import NoteForm from './components/NoteForm'
 import NoteList from './components/NoteList'
-import { Button } from './components/ui/button'
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger 
+} from './components/ui/dialog'
 
 function App() {
-  const [notes, setNotes] = useState(() => {
-    const savedNotes = localStorage.getItem('shiftNotes');
-    return savedNotes ? JSON.parse(savedNotes) : [];
-  });
-  const [showForm, setShowForm] = useState(false);
-  const [editingNote, setEditingNote] = useState(null);
+  const [notes, setNotes] = useState([])
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  // Save notes to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('shiftNotes', JSON.stringify(notes));
-  }, [notes]);
+    const savedNotes = JSON.parse(localStorage.getItem('shiftNotes') || '[]')
+    setNotes(savedNotes)
+  }, [])
 
-  const handleAddNote = (newNote) => {
-    setNotes(prev => [...prev, newNote]);
-    setShowForm(false);
-  };
+  const addNote = (newNote) => {
+    const updatedNotes = [newNote, ...notes]
+    setNotes(updatedNotes)
+    localStorage.setItem('shiftNotes', JSON.stringify(updatedNotes))
+    setIsDialogOpen(false)
+  }
 
-  const handleDeleteNote = (noteId) => {
-    setNotes(prev => prev.filter(note => note.id !== noteId));
-  };
+  const deleteNote = (noteId) => {
+    const updatedNotes = notes.filter(note => note.id !== noteId)
+    setNotes(updatedNotes)
+    localStorage.setItem('shiftNotes', JSON.stringify(updatedNotes))
+  }
 
-  const handleEditNote = (note) => {
-    setEditingNote(note);
-    setShowForm(true);
-  };
-
-  const handleUpdateNote = (updatedNote) => {
-    setNotes(prev => prev.map(note => 
-      note.id === updatedNote.id ? updatedNote : note
-    ));
-    setShowForm(false);
-    setEditingNote(null);
-  };
-
-  if (showForm) {
-    return (
-      <div className="container mx-auto p-4 max-w-3xl">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">
-            {editingNote ? 'Edit Note' : 'Add New Note'}
-          </h1>
-          <Button 
-            onClick={() => {
-              setShowForm(false);
-              setEditingNote(null);
-            }}
-          >
-            Back to Notes
-          </Button>
-        </div>
-        <NoteForm 
-          onAddNote={editingNote ? handleUpdateNote : handleAddNote}
-          initialNote={editingNote}
-        />
-      </div>
-    );
+  const editNote = (updatedNote) => {
+    const updatedNotes = notes.map(note => 
+      note.id === updatedNote.id 
+        ? {...updatedNote, createdAt: note.createdAt, timestamp: note.timestamp} 
+        : note
+    )
+    setNotes(updatedNotes)
+    localStorage.setItem('shiftNotes', JSON.stringify(updatedNotes))
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Shift Notes</h1>
-        <Button onClick={() => setShowForm(true)}>
-          Add New Note
-        </Button>
+    <div className="container mx-auto px-4 py-8 max-w-6xl relative">
+      <header className="text-center mb-8">
+        <h1 className="text-4xl font-bold text-shift-primary mb-2">
+          Shift Notes
+        </h1>
+        <p className="text-gray-600">
+          Create and manage notes for shift handovers
+        </p>
+      </header>
+
+      {/* Floating New Note Button */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogTrigger asChild>
+          <button 
+            className="fixed top-4 right-4 z-50 bg-shift-primary text-white p-3 rounded-full shadow-lg hover:bg-shift-primary/90 transition-colors"
+            aria-label="New Note"
+          >
+            <PlusIcon size={24} />
+          </button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Shift Note</DialogTitle>
+          </DialogHeader>
+          <NoteForm onAddNote={addNote} />
+        </DialogContent>
+      </Dialog>
+
+      <div>
+        <NoteList 
+          notes={notes} 
+          onDeleteNote={deleteNote}
+          onEditNote={editNote}
+        />
       </div>
-      <NoteList 
-        notes={notes}
-        onDeleteNote={handleDeleteNote}
-        onEditNote={handleEditNote}
-      />
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
