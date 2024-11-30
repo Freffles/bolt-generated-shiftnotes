@@ -2,18 +2,26 @@ import React, { useState } from 'react'
 import { Button } from './ui/button'
 import { v4 as uuidv4 } from 'uuid'
 
+/**
+ * Form component for creating a new shift note.
+ * @param {Function} onAddNote - Callback to add a new note.
+ */
 function NoteForm({ onAddNote }) {
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
-  const [shift, setShift] = useState('Day')
-  const [priority, setPriority] = useState('routine')
+  const [title, setTitle] = useState('') // State for note title
+  const [content, setContent] = useState('') // State for note content
+  const [shift, setShift] = useState('Day') // State for shift type
+  const [priority, setPriority] = useState('routine') // State for note priority
 
+  /**
+   * Handles form submission to create a new note.
+   * @param {Event} e - Form submission event.
+   */
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!title.trim()) return
 
     const newNote = {
-      id: uuidv4(),
+      id: uuidv4(), // Unique ID for the note
       title,
       content,
       shift,
@@ -26,11 +34,11 @@ function NoteForm({ onAddNote }) {
         minute: '2-digit',
         hour12: true
       }),
-      timestamp: new Date().getTime()
+      timestamp: new Date().getTime() // Timestamp for sorting
     }
 
-    onAddNote(newNote)
-    setTitle('')
+    onAddNote(newNote) // Add the new note
+    setTitle('') // Reset form fields
     setContent('')
     setShift('Day')
     setPriority('routine')

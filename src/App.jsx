@@ -10,28 +10,45 @@ import {
   DialogTrigger 
 } from './components/ui/dialog'
 
+/**
+ * Main application component for Shift Notes.
+ * Manages state for notes and dialog visibility.
+ */
 function App() {
-  const [notes, setNotes] = useState([])
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [notes, setNotes] = useState([]) // State to store notes
+  const [isDialogOpen, setIsDialogOpen] = useState(false) // State to control dialog visibility
 
+  // Load notes from local storage on component mount
   useEffect(() => {
     const savedNotes = JSON.parse(localStorage.getItem('shiftNotes') || '[]')
     setNotes(savedNotes)
   }, [])
 
+  /**
+   * Adds a new note to the list and updates local storage.
+   * @param {Object} newNote - The new note to add.
+   */
   const addNote = (newNote) => {
     const updatedNotes = [newNote, ...notes]
     setNotes(updatedNotes)
     localStorage.setItem('shiftNotes', JSON.stringify(updatedNotes))
-    setIsDialogOpen(false)
+    setIsDialogOpen(false) // Close the dialog after adding a note
   }
 
+  /**
+   * Deletes a note by its ID and updates local storage.
+   * @param {string} noteId - The ID of the note to delete.
+   */
   const deleteNote = (noteId) => {
     const updatedNotes = notes.filter(note => note.id !== noteId)
     setNotes(updatedNotes)
     localStorage.setItem('shiftNotes', JSON.stringify(updatedNotes))
   }
 
+  /**
+   * Edits an existing note and updates local storage.
+   * @param {Object} updatedNote - The updated note object.
+   */
   const editNote = (updatedNote) => {
     const updatedNotes = notes.map(note => 
       note.id === updatedNote.id 

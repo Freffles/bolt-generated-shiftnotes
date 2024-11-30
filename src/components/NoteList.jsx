@@ -1,6 +1,12 @@
 import React from 'react'
 import { Trash2, Edit } from 'lucide-react'
 
+/**
+ * Component to display a list of notes grouped by priority.
+ * @param {Array} notes - Array of note objects.
+ * @param {Function} onDeleteNote - Callback to delete a note.
+ * @param {Function} onEditNote - Callback to edit a note.
+ */
 function NoteList({ notes, onDeleteNote, onEditNote }) {
   // Priority color mapping with default fallback
   const priorityColors = {
@@ -32,7 +38,11 @@ function NoteList({ notes, onDeleteNote, onEditNote }) {
       .sort((a, b) => a.timestamp - b.timestamp)
   }
 
-  // Render function for notes in a column
+  /**
+   * Renders a column of notes for a specific priority.
+   * @param {Array} priorityNotes - Array of notes for the priority.
+   * @param {string} priorityKey - The priority key (e.g., 'Routine').
+   */
   const renderNoteColumn = (priorityNotes, priorityKey) => {
     // Safely get colors, fallback to default if not found
     const colors = priorityColors[priorityKey.toLowerCase()] || priorityColors.default
